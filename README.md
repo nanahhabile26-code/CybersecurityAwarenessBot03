@@ -1,114 +1,234 @@
 # Cybersecurity Awareness Bot
 
-## About the Project
+## 1. Project Overview
 
-The Cybersecurity Awareness Bot is a C# application designed to promote cybersecurity awareness by providing users with helpful information, tips, and guidance on staying safe online.
+The Cybersecurity Awareness Bot is a C# desktop application developed using Windows Presentation Foundation (WPF). The purpose of the application is to educate users about cybersecurity threats and promote safe online practices through an interactive chatbot.
 
-The project aims to educate users about common cybersecurity threats and encourage safe digital practices through an interactive chatbot interface.
+The application provides users with cybersecurity information, allows them to manage security-related tasks and reminders, records user activities, and offers an interactive cybersecurity quiz.
 
-## Features
+The project aims to make cybersecurity education accessible, engaging and easy to understand.
 
-- **Interactive Chatbot:** Allows users to interact with the bot through a graphical user interface.
-- **Cybersecurity Tips:** Provides information about online safety and cybersecurity best practices.
-- **User-Friendly Interface:** Uses Windows Presentation Foundation (WPF) to create an accessible desktop interface.
-- **Input Handling:** Processes user input and responds to supported questions and keywords.
-- **Audio Functionality:** Includes sound functionality for an enhanced user experience, where configured.
-- **Modular Code Structure:** Separates interface, chatbot logic, and supporting functionality into different components.
+## 2. Technologies Used
 
+The project was developed using the following technologies:
+
+- **Programming Language:** C#
+- **Framework:** .NET 8.0
+- **User Interface:** Windows Presentation Foundation (WPF)
+- **IDE:** Microsoft Visual Studio
+- **Database:** MySQL
+- **Database Connector:** MySqlConnector
+- **Audio:** WAV audio file for the welcome sound
+- **Version Control:** Git and GitHub
+
+## 3. Main Features
  ## VIDEO REPRESENTATION!!!
- https://advtechonline-my.sharepoint.com/:v:/r/personal/st10123592_rcconnect_edu_za/_layouts/15/stream.aspx?id=%2Fpersonal%2Fst10123592%5Frcconnect%5Fedu%5Fza%2FDocuments%2FLabVM2335921%20%282%29%20%2D%20labvmdnsbqthgpgppkrhs%2Esouthafricanorth%2Ecloudapp%2Eazure%2Ecom%5F3389%20%2D%20Remote%20Desktop%20Connection%202026%2D10%2D16%2012%2D41%2D47%2Emp4&share=cQrFOjmCXWMqSIWoaumQ6xcNEgUCIpmlo3dJCvgWJ6ioXKX2Jg
+https://advtechonline-my.sharepoint.com/:v:/r/personal/st10123592_rcconnect_edu_za/_layouts/15/stream.aspx?id=%2Fpersonal%2Fst10123592%5Frcconnect%5Fedu%5Fza%2FDocuments%2FLabVM2335921%20%288%29%20%2D%20labvmdnsbqthgpgppkrhs%2Esouthafricanorth%2Ecloudapp%2Eazure%2Ecom%5F3389%20%2D%20Remote%20Desktop%20Connection%202026%2D11%2D13%2001%2D20%2D24%2Emp4&share=cQqnxzIx7iptQqxUvq0xzAqGEgUCMtV7OkUlPSa7dEdJcP67FQ
 
  ## ACTIONS
  <img width="975" height="186" alt="image" src="https://github.com/user-attachments/assets/c56ed32a-51b0-45cb-aaa9-bd3371cddf20" />
 
 
-## Technologies Used
+### 3.1 Interactive Chatbot
 
-- C#
-- .NET
-- Windows Presentation Foundation (WPF)
-- XAML
-- Visual Studio
-- Git and GitHub
+The chatbot allows users to ask questions about cybersecurity and receive relevant responses.
 
-## Cybersecurity Topics
+It provides information about:
+- Password safety
+- Phishing attacks
+- Online scams
+- Privacy protection
+- Malware
+- Safe browsing
+- Two-factor authentication
 
-The chatbot can be developed to provide guidance on topics such as:
+### 3.2 Graphical User Interface
 
-- Password security
-- Phishing and suspicious links
-- Online privacy
-- Malware and viruses
-- Safe browsing practices
-- Protecting personal information
+The application uses a WPF graphical interface with a dark-themed design.
 
-## Getting Started
+The interface includes:
+- Chat display area
+- User input field
+- Send button
+- Quick Topic buttons
+- Task Assistant
+- Exit button
+- Cybersecurity Awareness Bot branding
 
-### Prerequisites
+### 3.3 Welcome Sound
 
-Before running the project, ensure you have:
+The application plays a welcome sound when the main window opens.
 
-- Windows operating system
-- Visual Studio with the .NET desktop development workload installed
-- A compatible .NET SDK
-- Git, if you want to clone the repository
+The audio file is stored in the `Assets` folder as `Welcome.wav`.
 
-### Installation
+### 3.4 Task Assistant
 
-1. Clone this repository:
+The Task Assistant allows users to manage cybersecurity-related tasks and reminders.
 
-   ```bash
-   git clone YOUR_GITHUB_REPOSITORY_URL
-   ```
+Users can:
+- Add new tasks.
+- Provide task descriptions.
+- Set reminder dates.
+- View saved tasks.
+- Mark tasks as completed.
+- Delete tasks.
 
-2. Open the downloaded project folder.
+Tasks are stored in the MySQL database.
 
-3. Open the solution file (`.sln`) in Visual Studio, or open the project file (`.csproj`).
+### 3.5 Activity Log
 
-4. Restore any required NuGet packages.
+The Activity Log records important activities performed within the application.
 
-5. Build the project by selecting **Build → Build Solution**.
+Examples include:
+- Chatbot startup.
+- Database initialisation.
+- User interactions.
+- Chatbot questions.
+- Quiz activity.
+- Task-related activities.
 
-6. Run the application using **F5** or **Start** in Visual Studio.
+Users can view recent activity through the chatbot by entering:
 
-## Project Structure
+`Show activity log`
 
-The project may include the following components, depending on the current implementation:
+To view additional records, enter:
 
-- `MainWindow.xaml` — Defines the graphical user interface.
-- `MainWindow.xaml.cs` — Handles interface events and user interactions.
-- `ChatEngine.cs` — Contains the chatbot's response and processing logic.
-- `BotResponses.cs` — Organises chatbot responses, if implemented separately.
-- `SoundManager.cs` — Manages audio functionality, if included.
-- `CybersecurityAwarenessBot.csproj` — Contains project configuration and dependencies.
+`Show more`
 
-## How to Use
+### 3.6 Cybersecurity Quiz
 
-1. Launch the Cybersecurity Awareness Bot application.
-2. Enter a question or keyword related to cybersecurity.
-3. Submit your input through the chat interface.
-4. Read the chatbot's response and cybersecurity guidance.
-5. Continue interacting with the bot to explore other supported topics.
+The application includes an interactive cybersecurity quiz designed to test users' knowledge of cybersecurity principles and safe online practices.
 
-## Learning Objectives
+### 3.7 Database Integration
 
-This project provides practical experience in:
+The application uses MySQL to store task information.
 
-- C# programming and object-oriented development
-- Building desktop applications using WPF
-- Handling user input and application events
-- Separating user interface code from application logic
-- Implementing basic chatbot functionality
-- Using Git and GitHub for version control
+The task database includes the following fields:
 
-## Future Improvements
+- TaskId
+- Title
+- Description
+- ReminderDate
+- IsCompleted
+- CreatedAt
 
-Potential enhancements include:
+The application also handles database connection errors so that the main chatbot can still open when the database is unavailable.
 
-- Expanding the chatbot's knowledge base
-- Adding more cybersecurity topics and examples
-- Improving input validation and error handling
-- Enhancing the graphical interface
-- Adding additional accessibility features
-- Implementing automated tests for chatbot responses
+## 4. Project Structure
+
+The project contains the following main files and folders:
+
+```text
+CybersecurityAwarenessBot/
+│
+├── Assets/
+│   ├── README.txt
+│   └── Welcome.wav
+│
+├── Models/
+│
+├── Services/
+│   ├── SoundManager.cs
+│   ├── ActivityLogService.cs
+│   ├── DatabaseService.cs
+│   └── TaskService.cs
+│
+├── MainWindow.xaml
+├── MainWindow.xaml.cs
+├── ChatEngine.cs
+├── ActivityLog.cs
+├── MySqlConnection.cs
+├── NlpEngine.cs
+├── QuizQuestions.cs
+├── TaskWindow.xaml
+├── TaskWindow.xaml.cs
+├── QuizWindow.xaml
+├── QuizWindow.xaml.cs
+│
+└── CybersecurityAwarenessBot.csproj
+```
+
+*Note: The structure above is a guide. Actual folders and filenames may differ depending on the final project organisation.*
+
+## 5. Installation and Setup
+
+### Requirements
+
+Before running the application, ensure that you have:
+
+- Windows operating system.
+- Microsoft Visual Studio.
+- .NET 8.0 SDK.
+- MySQL Server.
+- MySqlConnector NuGet package.
+
+### Steps to Run the Application
+
+1. Download or clone the project repository from GitHub.
+2. Open the `CybersecurityAwarenessBot.sln` solution in Visual Studio.
+3. Ensure that the required NuGet packages are installed.
+4. Configure the MySQL connection settings in the appropriate database configuration file.
+5. Ensure that the MySQL server is running.
+6. Check that `Welcome.wav` is included in the `Assets` folder.
+7. Set the audio file's Build Action to `Content` and Copy to Output Directory to `Copy if newer`.
+8. Build the solution.
+9. Run the application.
+
+## 6. Database Configuration
+
+The application requires a working MySQL connection for database-related functionality.
+
+Ensure that the database connection string contains the correct:
+
+- MySQL server address.
+- Database name.
+- Username.
+- Password.
+
+Do not upload database passwords or other confidential credentials to GitHub.
+
+The application initialises the required database and task table through its database service.
+
+## 7. How to Use the Application
+
+1. Launch the application.
+2. Listen to the welcome sound and read the welcome message.
+3. Select a Quick Topic or type a cybersecurity question.
+4. Click Send to receive a response.
+5. Open Task Assistant to manage cybersecurity tasks.
+6. Open the Activity Log to review recorded activities.
+7. Open the Quiz to test your cybersecurity knowledge.
+8. Use the Exit button to close the application.
+
+## 8. Error Handling
+
+The application includes error handling for important operations, including database initialisation and audio playback.
+
+If the MySQL database is unavailable, the main chatbot can still open, although database-dependent features will not be available.
+
+## 9. Future Improvements
+
+Possible future improvements include:
+
+- More advanced natural language processing.
+- Additional cybersecurity topics and responses.
+- Improved task reminder notifications.
+- Enhanced quiz questions and scoring.
+- Improved database reporting.
+- More advanced user personalisation.
+- Additional security awareness learning activities.
+
+## 10. Project Purpose
+
+The Cybersecurity Awareness Bot was developed as an educational project to demonstrate practical programming skills, object-oriented programming, graphical user interface development, database integration, event handling and basic cybersecurity awareness.
+
+The project demonstrates how software development can be used to educate users about common online threats and encourage responsible digital behaviour.
+
+## 11. Author
+
+**Project Name:** Cybersecurity Awareness Bot  
+**Programming Language:** C#  
+**Framework:** .NET 8.0 WPF  
+**Database:** MySQL  
+**Development Environment:** Microsoft Visual Studio
 
