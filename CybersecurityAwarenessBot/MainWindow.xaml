@@ -95,6 +95,19 @@
                             Tag="What can I ask you about?" Click="TopicButton_Click" />
                     <Button Content="Exit" Background="#DA3633" Style="{StaticResource BotButton}"
                             Margin="0,12,0,0" Tag="exit" Click="TopicButton_Click" />
+
+                    <Button Content="📋 Task Assistant"
+        Style="{StaticResource TopicButton}"
+        Click="TaskButton_Click"/>
+
+                    <Button Content="🎮 Cybersecurity Quiz"
+        Style="{StaticResource TopicButton}"
+        Click="QuizButton_Click"/>
+
+                    <Button Content="📜 Activity Log"
+        Style="{StaticResource TopicButton}"
+        Click="ActivityLogButton_Click"/>
+
                 </StackPanel>
             </Border>
         </Grid>

@@ -1,47 +1,47 @@
+
 using System;
 using System.IO;
-using System.Linq;
 using System.Media;
+using System.Windows;
 
-namespace CybersecurityAwarenessBot;
-
-/// <summary>Plays the WAV voice greeting from Part 1 (Assets folder).</summary>
-// kept alive so playback isn't cut off
-public static class SoundManager
+namespace CybersecurityAwarenessBot.Services
 {
-    private const string FileName = "Welcome.wav";
-    private static SoundPlayer? _player;   
-
-    public static void PlayWelcomeSound()
+    public static class SoundManager
     {
-        try
+        private static SoundPlayer? _welcomePlayer;
+
+        public static void PlayWelcomeSound()
         {
-            string folder = Path.Combine(AppContext.BaseDirectory, "Assets");
-            string path = Path.Combine(folder, FileName);
-
-            // Fall back to any .wav in the Assets folder
-            // throws if the file isn't a valid PCM WAV
-            // asynchronous, doesn't freeze the GUI
-            if (!File.Exists(path) && Directory.Exists(folder))
-                path = Directory.GetFiles(folder, "*.wav").FirstOrDefault() ?? path;
-
-            if (!File.Exists(path))
+            try
             {
-                System.Windows.MessageBox.Show(
-                    "Voice greeting not found.\nExpected: " + path,
-                    "Sound", System.Windows.MessageBoxButton.OK);
-                return;
-            }
+                string soundPath = Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    "Assets",
+                    "Welcome.wav"
+                );
 
-            _player = new SoundPlayer(path);
-            _player.Load();    
-            _player.Play();    
-        }
-        catch (Exception ex)
-        {
-            System.Windows.MessageBox.Show(
-                "Could not play the voice greeting:\n" + ex.Message,
-                "Sound", System.Windows.MessageBoxButton.OK);
+                if (!File.Exists(soundPath))
+                {
+                    MessageBox.Show(
+                        "Welcome.wav was not found!\n" + soundPath,
+                        "Sound Error"
+                    );
+
+                    return;
+                }
+
+                _welcomePlayer = new SoundPlayer(soundPath);
+
+                _welcomePlayer.Load();
+                _welcomePlayer.Play();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Unable to play welcome sound:\n" + ex.Message,
+                    "Sound Error"
+                );
+            }
         }
     }
 }

@@ -1,212 +1,219 @@
+
 using System;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using CybersecurityAwarenessBot.Services;
 
-namespace CybersecurityAwarenessBot;
-
-/// <summary>
-/// GUI layer only. All "thinking" is done by <see cref="ChatEngine"/>.
-/// Replaces the console classes from Part 1 (BotUI / BotInput).
-/// </summary>
-public partial class MainWindow : Window
+namespace CybersecurityAwarenessBot
 {
-    private enum ChatState { AwaitingName, Chatting }
-
-    private readonly ChatEngine _engine = new();
-    private ChatState _state = ChatState.AwaitingName;
-    private bool _busy;
-    private bool _closing;
-
-    public MainWindow()
+    public partial class MainWindow : Window
     {
-        InitializeComponent();
-        AsciiArt.Text = AsciiLogo.Text;                 
-        Loaded += async (s, e) => await StartAsync();
-    }
+        private readonly ChatEngine _engine;
+        private readonly ActivityLogService _activityLog;
+        private TaskService? _taskService;
 
-    // ---------- Startup ----------//
-
-    private async Task StartAsync()
-    {
-        SoundManager.PlayWelcomeSound();                
-        _busy = true;
-        SetInputEnabled(false);
-        await BotSayAsync("Hello! Welcome to the Cybersecurity Awareness Bot. " +
-                          "I'm here to help you stay safe online.\n\nPlease enter your name to begin:");
-        _busy = false;
-        SetInputEnabled(true);
-    }
-
-    // ---------- Event handlers ----------
-
-    private async void SendButton_Click(object sender, RoutedEventArgs e) => await SendAsync(InputBox.Text);
-
-    private async void InputBox_KeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Enter) await SendAsync(InputBox.Text);
-    }
-
-    private async void TopicButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is Button b && b.Tag is string text)
+        public MainWindow()
         {
-            if (_state == ChatState.AwaitingName)
+            InitializeComponent();
+
+            // Play welcome sound when the window has loaded.
+            Loaded += (sender, e) =>
             {
-                await BotSayAsync("Please enter your name first.");
-                return;
+                SoundManager.PlayWelcomeSound();
+            };
+
+            _engine = new ChatEngine();
+            _activityLog = new ActivityLogService();
+
+            // Load the Part 1 logo.
+            AsciiArt.Text = AsciiLogo.Text;
+
+            AddBotMessage(
+                "Welcome to the Cybersecurity Awareness Bot!\n" +
+                "Ask me about passwords, phishing, scams, privacy, " +
+                "malware or safe browsing.");
+
+            _activityLog.Log("System", "Chatbot started.");
+
+            // Initialise MySQL without preventing the chatbot from opening
+            // if the database is unavailable.
+            try
+            {
+                DatabaseService database = new DatabaseService();
+                database.CreateDatabaseAndTable();
+
+                _taskService = new TaskService(database);
+
+                _activityLog.Log(
+                    "Database",
+                    "Database connected successfully.");
             }
-            await SendAsync(text);
-        }
-    }
-
-    // ---------- Core flow ----------
-
-    private async Task SendAsync(string text)
-    {
-        if (_busy || _closing) return;
-        _busy = true;
-        SetInputEnabled(false);
-
-        try
-        {
-            text = (text ?? "").Trim();
-
-            // Input validation: empty entries
-            if (text.Length == 0)
+            catch (Exception ex)
             {
-                await BotSayAsync(_state == ChatState.AwaitingName
-                    ? "Your name cannot be empty. Please enter your name."
-                    : "I didn't receive any input. Please type a question.");
-                return;
-            }
+                _taskService = null;
 
-            AddBubble(_state == ChatState.AwaitingName ? "You" : _engine.Memory.Name, text, isBot: false);
-            InputBox.Clear();
-
-            if (_state == ChatState.AwaitingName)
-            {
-                await HandleNameAsync(text);
-                return;
-            }
-
-            if (ChatEngine.IsExit(text))
-            {
-                _closing = true;
-                await BotSayAsync($"Goodbye {_engine.Memory.Name}! Stay safe online.");
-                await Task.Delay(1500);
-                Close();
-                return;
-            }
-
-            await BotSayAsync(_engine.GetResponse(text));
-        }
-        catch (Exception)
-        {
-            // Never crash on unexpected input
-            AddBubble("Bot", "Oops, something went wrong on my side. Please try again.", isBot: true);
-        }
-        finally
-        {
-            _busy = false;
-            if (!_closing)
-            {
-                SetInputEnabled(true);
-                InputBox.Focus();
+                _activityLog.Log(
+                    "Database",
+                    "Database connection failed: " + ex.Message);
             }
         }
-    }
 
-    private async Task HandleNameAsync(string text)
-    {
-        // Allow "my name is Sam" as well as just "Sam"
-        string name = Regex.Replace(text, @"^(my name is|i am|i'm|call me)\s+", "", RegexOptions.IgnoreCase).Trim();
-
-        if (!Regex.IsMatch(name, @"^\p{L}[\p{L} '\-]{0,29}$"))
+        private void AddBotMessage(string message)
         {
-            await BotSayAsync("That doesn't look like a valid name. Please use letters only (max 30 characters).");
-            return;
-        }
+            TextBlock text = new TextBlock
+            {
+                Text = "Bot: " + message,
+                Foreground = Brushes.White,
+                FontSize = 14,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(10)
+            };
 
-        _engine.Memory.Name = char.ToUpper(name[0]) + name.Substring(1);
-        _state = ChatState.Chatting;
-
-        string border = new string('═', 36);
-        await BotSayAsync(
-            $"{border}\n   Welcome, {_engine.Memory.Name}!\n{border}\n\n" +
-            $"Hello {_engine.Memory.Name}! I am here to help you stay safe and secure online.\n\n" +
-            "You can ask me about:\n" +
-            "  • Password safety\n  • Phishing & scams\n  • Privacy\n  • Safe browsing\n" +
-            "  • Malware\n  • Two-factor authentication\n\n" +
-            "Tip: try \"I'm worried about scams\", \"tell me more\" or \"I'm interested in privacy\".\n" +
-            "Type 'exit' to leave.");
-    }
-
-    // ---------- Chat bubble helpers ----------
-
-    /// <summary>Shows a bot message with a short "typing" delay and a typewriter effect.</summary>
-    private async Task BotSayAsync(string text)
-    {
-        TextBlock body = AddBubble("Bot", "...", isBot: true);
-        await Task.Delay(450);
-
-        body.Text = "";
-        int chunk = Math.Max(1, text.Length / 120);     
-        for (int i = 0; i < text.Length; i += chunk)
-        {
-            body.Text = text.Substring(0, Math.Min(text.Length, i + chunk));
+            ChatPanel.Children.Add(text);
             ChatScroll.ScrollToEnd();
-            await Task.Delay(12);
         }
-        body.Text = text;
-        ChatScroll.ScrollToEnd();
-    }
 
-    private TextBlock AddBubble(string sender, string text, bool isBot)
-    {
-        var header = new TextBlock
+        private void AddUserMessage(string message)
         {
-            Text = sender,
-            FontWeight = FontWeights.Bold,
-            FontSize = 12,
-            Foreground = Colour(isBot ? "#00E5FF" : "#FFD54F"),
-            Margin = new Thickness(0, 0, 0, 4)
-        };
-        var body = new TextBlock
+            TextBlock text = new TextBlock
+            {
+                Text = "You: " + message,
+                Foreground = Brushes.LightBlue,
+                FontSize = 14,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(10)
+            };
+
+            ChatPanel.Children.Add(text);
+            ChatScroll.ScrollToEnd();
+        }
+
+        private void ProcessMessage(string message)
         {
-            Text = text,
-            TextWrapping = TextWrapping.Wrap,
-            Foreground = Brushes.White,
-            FontSize = 14
-        };
-        var stack = new StackPanel();
-        stack.Children.Add(header);
-        stack.Children.Add(body);
+            if (string.IsNullOrWhiteSpace(message))
+                return;
 
-        var bubble = new Border
+            AddUserMessage(message);
+
+            string lowerMessage = message.ToLowerInvariant();
+
+            if (lowerMessage.Contains("show activity log") ||
+                lowerMessage.Contains("what have you done for me"))
+            {
+                AddBotMessage(_activityLog.FormatForChat(10, 0));
+                return;
+            }
+
+            if (lowerMessage.Contains("show more"))
+            {
+                AddBotMessage(_activityLog.FormatForChat(10, 10));
+                return;
+            }
+
+            if (ChatEngine.IsExit(message))
+            {
+                _activityLog.Log("System", "User exited the chatbot.");
+                AddBotMessage("Goodbye! Stay safe online.");
+                return;
+            }
+
+            string response = _engine.GetResponse(message);
+
+            _activityLog.Log("Chat", "User asked: " + message);
+
+            AddBotMessage(response);
+        }
+
+        private void SendButton_Click(
+            object sender,
+            RoutedEventArgs e)
         {
-            Child = stack,
-            CornerRadius = new CornerRadius(10),
-            Padding = new Thickness(12, 8, 12, 10),
-            Margin = new Thickness(8, 4, 8, 4),
-            MaxWidth = 560,
-            HorizontalAlignment = isBot ? HorizontalAlignment.Left : HorizontalAlignment.Right,
-            Background = Colour(isBot ? "#1F2937" : "#0B3D5C")
-        };
+            string message = InputBox.Text.Trim();
 
-        ChatPanel.Children.Add(bubble);
-        ChatScroll.ScrollToEnd();
-        return body;
-    }
+            if (message.Length == 0)
+                return;
 
-    private static Brush Colour(string hex) => (Brush)new BrushConverter().ConvertFromString(hex)!;
+            InputBox.Clear();
+            ProcessMessage(message);
+        }
 
-    private void SetInputEnabled(bool enabled)
-    {
-        InputBox.IsEnabled = enabled;
-        SendButton.IsEnabled = enabled;
+        private void InputBox_KeyDown(
+            object sender,
+            KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                SendButton_Click(sender, e);
+                e.Handled = true;
+            }
+        }
+
+        private void TopicButton_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                string topic = button.Tag?.ToString()
+                    ?? button.Content?.ToString()
+                    ?? "cybersecurity";
+
+                if (topic.Equals(
+                    "exit",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    Close();
+                    return;
+                }
+
+                ProcessMessage(topic);
+            }
+        }
+
+        private void TaskButton_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            if (_taskService == null)
+            {
+                MessageBox.Show(
+                    "The task database is unavailable. " +
+                    "Please check your MySQL connection and password.",
+                    "Database Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+
+                return;
+            }
+
+            TaskWindow window =
+                new TaskWindow(_taskService, _activityLog);
+
+            window.Owner = this;
+            window.ShowDialog();
+        }
+
+        private void QuizButton_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            QuizWindow window = new QuizWindow();
+            window.Owner = this;
+            window.ShowDialog();
+
+            _activityLog.Log(
+                "Quiz",
+                "Cybersecurity quiz window opened.");
+        }
+
+        private void ActivityLogButton_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            AddBotMessage(
+                _activityLog.FormatForChat(10, 0));
+        }
     }
 }
